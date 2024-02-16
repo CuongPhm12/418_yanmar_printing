@@ -1,0 +1,217 @@
+SELECT 
+  {from_ser} as from_ser
+  , {to_ser} as to_ser
+  , {condition_ser} as condition_ser
+  , {start_name_ser} as start_name_ser
+	,status
+	,release_no
+  ,release_order_status
+	,release_order_no
+	,createdate
+	,USERNAME
+	,agency_order_type
+	,delv_name_track
+	,delv_name
+	,driver_name
+	,car_no
+	,driver_tel_no
+	,delv_cust_remark
+	,start_name
+	,start_manager_name
+	,start_agency_tel_no
+	,start_agency_address
+	,end_name
+	,end_manager_name
+	,end_agency_tel_no
+	,end_agency_address
+	,prod_type1
+	,carcass_cd
+	,sales_cd
+	,machine_no
+	,built_no 
+	,engine_no
+	,built_date
+	,item_cd
+	,CONCAT(
+					 RIGHT(YEAR(tb_list.createdate), 2), 
+					 '.',
+					 LPAD(MONTH(tb_list.createdate), 2, '0'), 
+					 '.',
+					 LPAD(DAY(tb_list.createdate), 2, '0'), 
+					 ' ',
+					 LPAD(HOUR(tb_list.createdate), 2, '0'), 
+					 ':',
+					 LPAD(MINUTE(tb_list.createdate), 2, '0') 
+				 ) 
+		AS createdate_formart
+		, '' as createuser
+    , '' as createdate
+    , '' as updateuser
+    , '' as updatedate
+				 
+FROM (
+SELECT 
+  CASE
+    WHEN od.release_order_status = '접수' THEN '<span class="form-circle-sm" style="background-color:orange;"><span style="color:white;">접수</span></span>'
+    WHEN od.release_order_status = '완료' THEN '<span class="form-circle-sm" style="background-color:#4472c4;"><span style="color:white;">완료</span></span>'
+    WHEN od.release_order_status = '미접수' THEN  '<span class="form-circle-sm" style="background-color:#ffffff;"><span style="color:black;">미접수</span></span>'
+    ELSE '<span class="form-circle-sm" style="background-color:#ff0000;"><span style="color:white;">작성</span></span>'
+  END AS status
+  ,od.release_order_status
+	, od.release_order_no
+	, od.createdate
+	, u.USERNAME
+	, aod.agency_order_type
+	,IF(delv.cust_name = "해성운수", 
+	'<span class="form-circle-sm" style="background-color:#ffff00;"><span style="color:black;">해성운수</span></span>', 
+	'<span class="form-circle-sm" style="background-color:#bdd7ee;"><span style="color:black;">글로텍</span></span>') 
+	as delv_name_track
+	, delv.cust_name as delv_name
+	, wh.driver_name
+	, wh.car_no
+	, wh.driver_tel_no
+	, wh.delv_cust_remark
+	, fac.factory_name as start_name
+	, '' as start_manager_name
+	, '' as start_agency_tel_no
+	, '' as start_agency_address
+	, end_agc.agency_name as end_name
+	, end_agc.ceo_name as end_manager_name
+	, wh.end_agency_tel_no
+	, wh.end_agency_address
+	, item.prod_type1
+	, item.carcass_cd
+	, item.sales_cd
+	, wh.release_no
+	, ps.machine_no
+	, ps.built_no 
+	, ps.engine_no
+	, '' built_date
+	, item.item_cd
+	from tb_release_order_wh od 
+	left join vw_cm_usermaster u on u.UID = od.createuser
+	left join tb_agency_order aod on aod.agency_order_no = od.agency_order_no
+	left join tb_ma_cust delv on delv.cust_cd = od.delv_cust_cd
+	left join tb_release_wh_detail whd on whd.release_order_no = od.release_order_no 
+	left join tb_release_wh wh on wh.release_no = whd.release_no
+	left join tb_ma_factory fac on fac.factory_cd = wh.start_wh_cd
+	left join tb_ma_agency end_agc on end_agc.agency_cd = wh.end_agency_cd
+	left join vw_ma_item item on item.item_cd = od.item_cd
+    left join tb_product_serial ps on ps.serial_id = whd.serial_id
+
+
+
+	UNION ALL 
+
+SELECT 
+  CASE
+    WHEN od.release_order_status = '접수' THEN '<span class="form-circle-sm" style="background-color:orange;"><span style="color:white;">접수</span></span>'
+    WHEN od.release_order_status = '완료' THEN '<span class="form-circle-sm" style="background-color:#4472c4;"><span style="color:white;">완료</span></span>'
+    WHEN od.release_order_status = '미접수' THEN  '<span class="form-circle-sm" style="background-color:#ffffff;"><span style="color:black;">미접수</span></span>'
+    ELSE '<span class="form-circle-sm" style="background-color:#ff0000;"><span style="color:white;">작성</span></span>'
+  END AS status
+  ,od.release_order_status
+	, od.release_order_no
+	, od.createdate
+	, u.USERNAME
+	, aod.agency_order_type
+	,IF(delv.cust_name = "해성운수", 
+		'<span class="form-circle-sm" style="background-color:#ffff00;"><span style="color:black;">해성운수</span></span>', 
+		'<span class="form-circle-sm" style="background-color:#bdd7ee;"><span style="color:black;">글로텍</span></span>') 
+	 as delv_name_track
+	, delv.cust_name as delv_name
+	, cus.driver_name
+	, cus.car_no
+	, cus.driver_tel_no
+	, od.delv_cust_remark
+	, age.agency_name as start_name
+	, age.ceo_name as start_manager_name
+	, od.start_cust_tel_no as start_agency_tel_no
+	, od.start_cust_address as start_agency_address
+	, end_age.agency_name as end_name
+	, end_age.ceo_name as end_manager_name
+	, od.end_agency_tel_no
+	, od.end_agency_address
+	, item.prod_type1
+	, item.carcass_cd
+	, item.sales_cd
+	, cus.release_no
+	, ps.machine_no
+	, ps.built_no 
+	, ps.engine_no
+	, stock.built_date
+	, item.item_cd
+	from tb_release_order_cust od 
+	left join vw_cm_usermaster u on u.UID = od.createuser
+	left join tb_agency_order aod on aod.agency_order_no = od.agency_order_no
+	left join tb_ma_cust delv on delv.cust_cd = od.delv_cust_cd
+	left join tb_release_cust_detail ven on ven.release_order_no = od.release_order_no 
+	left join tb_release_cust cus on cus.release_no = ven.release_no
+	left join tb_ma_agency age on age.agency_cd = od.start_cust_cd
+	left join tb_ma_agency end_age on end_age.agency_cd = od.end_agency_cd
+	left join vw_ma_item item on item.item_cd = od.item_cd
+    left join tb_product_serial ps on ps.serial_id = od.serial_id
+    left join tb_stock stock on stock.stock_id = od.stock_id
+
+  UNION ALL
+
+  SELECT 
+	CASE
+    WHEN od.release_order_status = '접수' THEN '<span class="form-circle-sm" style="background-color:orange;"><span style="color:white;">접수</span></span>'
+    WHEN od.release_order_status = '완료' THEN '<span class="form-circle-sm" style="background-color:#4472c4;"><span style="color:white;">완료</span></span>'
+    WHEN od.release_order_status = '미접수' THEN  '<span class="form-circle-sm" style="background-color:#ffffff;"><span style="color:black;">미접수</span></span>'
+    ELSE '<span class="form-circle-sm" style="background-color:#ff0000;"><span style="color:white;">작성</span></span>'
+  END AS status
+  ,od.release_order_status
+	, od.release_order_no
+	, od.createdate
+	, u.USERNAME
+	, aod.agency_order_type
+	,IF(delv.cust_name = "해성운수", 
+	'<span class="form-circle-sm" style="background-color:#ffff00;"><span style="color:black;">해성운수</span></span>', 
+	'<span class="form-circle-sm" style="background-color:#bdd7ee;"><span style="color:black;">글로텍</span></span>') 
+	as delv_name_track
+	, delv.cust_name as delv_name
+	, wan.driver_name
+	, wan.car_no
+	, wan.driver_tel_no
+	, od.delv_cust_remark
+	, age.agency_name as start_name
+	, age.ceo_name as start_manager_name
+	, od.start_agency_tel_no 
+	, od.start_agency_address
+	, end_age.agency_name as end_name
+	, end_age.ceo_name as end_manager_name
+	, od.end_agency_tel_no
+	, od.end_agency_address
+	, item.prod_type1
+	, item.carcass_cd
+	, item.sales_cd
+	, wan.release_no
+	, ps.machine_no
+	, ps.built_no 
+	, ps.engine_no
+	, stock.built_date
+	,item.item_cd
+	from tb_release_order_wanted od 
+	left join vw_cm_usermaster u on u.UID = od.createuser
+	left join tb_agency_order aod on aod.agency_order_no = od.agency_order_no
+	left join tb_ma_cust delv on delv.cust_cd = od.delv_cust_cd
+	left join tb_release_wanted_detail subage on subage.release_order_no = od.release_order_no 
+	left join tb_release_wanted wan on wan.release_no = subage.release_no
+	left join tb_ma_agency age on age.agency_cd = od.start_agency_cd
+	left join tb_ma_agency end_age on end_age.agency_cd = od.end_agency_cd
+	left join vw_ma_item item on item.item_cd = od.item_cd
+    left join tb_product_serial ps on ps.serial_id = od.serial_id
+    left join tb_stock stock on stock.stock_id = od.stock_id
+) tb_list 
+  WHERE  
+	(ifnull({from_ser},'') = '' or DATE(tb_list.createdate) >= {from_ser})
+	AND (ifnull({to_ser},'') = '' or DATE(tb_list.createdate) <= {to_ser})
+  AND (ifnull({condition_ser},'') = '' or tb_list.release_order_status = {condition_ser})
+  AND (ifnull({start_name_ser},'') = '' or start_name = {start_name_ser})
+  ORDER BY CASE WHEN tb_list.release_order_status = '접수' THEN 2
+                WHEN tb_list.release_order_status = '완료' THEN 3
+                WHEN tb_list.release_order_status = '미접수' THEN 1
+                ELSE 0 END
+         , tb_list.release_no

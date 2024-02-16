@@ -1,0 +1,130 @@
+<%@page import="java.util.*"%>
+<%@page import="java.sql.*"%>
+<%@page import="java.net.*"%>
+<%@page import="java.io.*"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.Calendar"%>
+<%@page import="com.google.gson.Gson"%>
+<%@page import="java.sql.DriverManager"%>
+<%@page import="java.sql.SQLException"%>
+<%@page import="org.json.JSONArray"%>
+<%@page import="org.json.JSONObject"%>
+<%@page import="org.slf4j.Logger"%>
+<%@page import="org.slf4j.LoggerFactory"%>
+
+<%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ include file="/WEB-INF/views/ajax/M000000001.jsp" %>
+<%@ include file="/WEB-INF/views/ajax/M000000241.jsp" %>
+<%
+    Logger logger = LoggerFactory.getLogger(getClass());
+
+    String header = (String)request.getParameter("header");
+    String detail = (String)request.getParameter("detail");
+    String sdetail = (String)request.getParameter("sdetail");
+    String type = (String)request.getParameter("type");
+
+    String driver = "org.mariadb.jdbc.Driver";
+    String url = "jdbc:mariadb://localhost:3306/simbizlocal?useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8";
+
+    String sLine = "";
+    String sText = "";
+    String user = "root";
+    String password = "tlaqlwm2174";
+
+    JSONObject jsonObj = new JSONObject();
+    String PassText = null;
+    String sql = "";
+    java.sql.Connection conn = null;
+    java.sql.PreparedStatement pstmt = null;
+    ResultSet rs = null;
+    Statement stmt = null;
+    
+    
+    String UID = (String)request.getParameter("UID");
+    
+    java.text.SimpleDateFormat dateFormat = new SimpleDateFormat ( "yyyy-MM-dd HH:mm:ss");
+    java.util.Date time = new java.util.Date();
+    String datetime = dateFormat.format(time);
+
+    try {
+        try {
+            Class.forName(driver);
+            conn = DriverManager.getConnection(url, user, password);
+            conn.setAutoCommit(false);
+
+            if ( type.equals("insert") || type.equals("edit") ) {
+
+            }
+
+            if ( type.equals("delete") ) {}
+            
+            if ( type.equals("cust_btn1") ) {
+
+            }
+            if ( type.equals("cust_btn2") ) {}
+            if ( type.equals("cust_btn3") ) {
+
+            }
+            
+        if ( type.equals("get_data") ) {        
+
+             Gson gson = new Gson();
+                if(header != null){
+                    JSONObject searchValue = new JSONObject(header);
+                    String itemCode = searchValue.getString("itemCode").toString();
+                 
+                  String dataSql3;
+
+                      
+                      dataSql3 ="";
+                      dataSql3 +="select a.item_cd, ";
+                      dataSql3 +="      a.check_type, ";
+                      dataSql3 +=" a.sorder, ";
+                      dataSql3 +=" a.sort_no, ";
+                      dataSql3 +=" a.check_title, ";
+                      dataSql3 +=" a.check_item, ";
+                      dataSql3 +=" a.content, ";
+                      dataSql3 +=" a.remark, ";
+                      dataSql3 +=" a.createuser, ";
+                      dataSql3 +=" a.createdate, ";
+                      dataSql3 +=" a.updateuser, ";
+                      dataSql3 +=" a.updatedate ";
+                      dataSql3 +=" from tb_ma_item_check_list a ";
+                      dataSql3 +=" where a.item_cd = '"+itemCode+"' ";
+                      dataSql3 +=" and a.check_type = '하차검사' ";
+                      dataSql3 +=" order by a.sort_no asc ";
+                      
+                      List<Map<String, Object>> print_data= selectAllQuery(conn, dataSql3);
+
+
+                  
+                
+                Map<String, Object> response_data = new HashMap<>();
+                response_data.put("status", 200);
+                response_data.put("message", "OK");
+                response_data.put("print_data", print_data);
+                response_data.put("sql", dataSql3);
+                
+                String jsonString = new Gson().toJson(response_data);
+                out.write(jsonString);
+                }
+        }
+             
+
+            
+        } catch (Throwable throwable) {
+            if (conn != null) {
+                conn.rollback();
+                logger.info("!!!!ROLLBACK DONE!!!!");
+            }
+            throw throwable;
+        } finally {
+            if (conn != null) conn.close();
+            if (pstmt != null) pstmt.close();
+        }
+    } catch (Exception e) {
+        out.write("error : " + e.getMessage().toString() + "\n");
+        if (conn != null) conn.close();
+        if (pstmt != null) pstmt.close();
+    }
+%>
