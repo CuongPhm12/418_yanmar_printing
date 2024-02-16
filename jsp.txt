@@ -82,8 +82,8 @@
                       dataSql3 +=" a.sorder, ";
                       dataSql3 +=" a.sort_no, ";
                       dataSql3 +=" a.check_title, ";
-                      dataSql3 +=" a.check_item, ";
-                      dataSql3 +=" a.content, ";
+                      dataSql3 +=" REPLACE(a.check_item, 'SIMBIZCOMMA', ',') check_item, ";
+                      dataSql3 +=" REPLACE(a.content, 'SIMBIZCOMMA', ',') content, ";
                       dataSql3 +=" a.remark, ";
                       dataSql3 +=" a.createuser, ";
                       dataSql3 +=" a.createdate, ";
@@ -91,7 +91,7 @@
                       dataSql3 +=" a.updatedate ";
                       dataSql3 +=" from tb_ma_item_check_list a ";
                       dataSql3 +=" where a.item_cd = '"+itemCode+"' ";
-                      dataSql3 +=" and a.check_type = '하차검사' ";
+                      dataSql3 +=" and a.check_type = '출고전검사' ";
                       dataSql3 +=" order by a.sort_no asc ";
                       
                       List<Map<String, Object>> print_data= selectAllQuery(conn, dataSql3);

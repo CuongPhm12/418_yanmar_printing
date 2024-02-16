@@ -61,7 +61,12 @@ $(document).ready(function () {
     // Get the text content of the first td element within the current row
     var currentText = $(this).find("td:first").text();
     // If the currentText matches "외관" or "기타"
-    if (currentText === "외관" || currentText === "기타") {
+    if (
+      currentText === "외관" ||
+      currentText === "엔진" ||
+      currentText === "전기장치" ||
+      currentText === "작동검사"
+    ) {
       // Get the number of rowspans needed
       var rowspan = $(".rowsrepeat").filter(function () {
         return $(this).find("td:first").text() === currentText;
